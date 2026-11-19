@@ -1,0 +1,27 @@
+{
+  "name": "yt-local",
+  "version": "1.0.0",
+  "description": "Local YouTube downloader (yt-dlp + Electron)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "local.yt.downloader",
+    "productName": "YT Local",
+    "win": {
+      "target": "portable"
+    },
+    "asarUnpack": [
+      "node_modules/ffmpeg-static/**"
+    ]
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0"
+  }
+}

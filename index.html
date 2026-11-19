@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src https: data:; style-src 'self' 'unsafe-inline'"
+    />
+    <title>YT Local</title>
+    <style>
+      :root {
+        --bg: #14161a;
+        --card: #1e2127;
+        --line: #2d3139;
+        --text: #e8eaed;
+        --muted: #8b919c;
+        --accent: #ff4d4d;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 20px;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          15px system-ui,
+          sans-serif;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0 0 16px;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      input,
+      select,
+      button {
+        font: inherit;
+        color: var(--text);
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px 12px;
+      }
+      input[type="text"] {
+        flex: 1;
+        min-width: 0;
+      }
+      button {
+        cursor: pointer;
+      }
+      button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+        font-weight: 600;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 12px;
+      }
+      .card img {
+        width: 100%;
+        display: block;
+        aspect-ratio: 16/9;
+        object-fit: cover;
+      }
+      .card div {
+        padding: 12px;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .bar {
+        height: 8px;
+        background: var(--line);
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 8px 0;
+      }
+      .bar i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: var(--accent);
+        transition: width 0.2s;
+      }
+      .hidden {
+        display: none;
+      }
+      #msg.err {
+        color: #ff7b7b;
+      }
+      a {
+        color: var(--muted);
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>YT Local</h1>
+    <div class="row">
+      <input id="url" type="text" placeholder="Встав посилання на відео" />
+      <button id="check">Знайти</button>
+      <button id="reset">Скинути</button>
+    </div>
+
+    <div id="info" class="card hidden">
+      <img id="thumb" alt="" />
+      <div>
+        <b id="title"></b>
+        <div class="muted" id="meta"></div>
+      </div>
+    </div>
+
+    <div id="opts" class="hidden">
+      <div class="row">
+        <select id="quality" style="flex: 1"></select>
+        <select id="kind">
+          <option value="video">Відео</option>
+          <option value="audio">Тільки аудіо (mp3)</option>
+        </select>
+      </div>
+      <div class="row">
+        <button
+          id="dirBtn"
+          style="
+            flex: 1;
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          "
+        ></button>
+      </div>
+      <div class="row">
+        <button id="go" class="primary" style="flex: 1">Завантажити</button>
+        <button id="stop" class="hidden">Скасувати</button>
+      </div>
+    </div>
+
+    <div id="prog" class="hidden">
+      <div class="bar"><i id="fill"></i></div>
+      <div class="muted" id="ptext"></div>
+    </div>
+    <p id="msg" class="muted"></p>
+    <p class="muted"><a id="open">Відкрити папку</a> · <a id="upd">Оновити yt-dlp</a></p>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
