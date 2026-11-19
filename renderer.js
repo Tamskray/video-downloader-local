@@ -1,6 +1,6 @@
 const $ = (id) => document.getElementById(id);
 let dir = "";
-const isCancelMsg = (t) => /скасовано|terminated|killed/i.test(t);
+const isCancelMsg = (t) => /cancelled|canceled|terminated|killed/i.test(t);
 const msg = (t, err) => {
   $("msg").textContent = t;
   $("msg").className = err && !isCancelMsg(t) ? "err" : "muted";
@@ -12,20 +12,20 @@ const setDir = (d) => {
 };
 
 (async () => {
-  msg("Готую yt-dlp (перший запуск може тривати кілька секунд)…");
+  msg("Preparing yt-dlp (first run may take a few seconds)…");
   try {
     const r = await api.init();
     setDir(r.dir);
-    msg(r.ffmpeg ? "" : "ffmpeg не знайдено. Виконай npm install ще раз.", !r.ffmpeg);
+    msg(r.ffmpeg ? "" : "ffmpeg not found. Run npm install again.", !r.ffmpeg);
   } catch (e) {
-    msg("Не вдалося завантажити yt-dlp: " + e.message, true);
+    msg("Failed to download yt-dlp: " + e.message, true);
   }
 })();
 
 $("check").onclick = async () => {
   const url = $("url").value.trim();
   if (!url) return;
-  msg("Шукаю…");
+  msg("Searching…");
   show("info", false);
   show("opts", false);
   $("check").disabled = true;
@@ -35,7 +35,7 @@ $("check").onclick = async () => {
     $("title").textContent = i.title;
     $("meta").textContent = [i.channel, i.duration].filter(Boolean).join(" · ");
     $("quality").innerHTML =
-      '<option value="best">Максимальна</option>' +
+      '<option value="best">Best</option>' +
       i.heights.map((h) => `<option value="${h}">${h}p</option>`).join("");
     show("info", true);
     show("opts", true);
@@ -56,7 +56,7 @@ $("dirBtn").onclick = async () => {
 
 api.onProgress((p) => {
   $("fill").style.width = p.pct + "%";
-  $("ptext").textContent = p.status || `${p.pct.toFixed(1)}% · ${p.speed} · залишилось ${p.eta}`;
+  $("ptext").textContent = p.status || `${p.pct.toFixed(1)}% · ${p.speed} · ${p.eta} left`;
 });
 
 $("go").onclick = async () => {
@@ -73,7 +73,7 @@ $("go").onclick = async () => {
       height: $("quality").value,
       audioOnly: $("kind").value === "audio",
     });
-    msg("Готово ✅");
+    msg("Done ✅");
   } catch (e) {
     msg(e.message, true);
   }
@@ -86,7 +86,7 @@ $("go").onclick = async () => {
 $("stop").onclick = () => api.cancel();
 $("open").onclick = () => dir && api.openDir(dir);
 $("upd").onclick = async () => {
-  msg("Оновлюю…");
+  msg("Updating…");
   msg(await api.update());
 };
 

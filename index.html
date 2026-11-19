@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="uk">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -113,9 +113,9 @@
   <body>
     <h1>YT Local</h1>
     <div class="row">
-      <input id="url" type="text" placeholder="Встав посилання на відео" />
-      <button id="check">Знайти</button>
-      <button id="reset">Скинути</button>
+      <input id="url" type="text" placeholder="Paste video URL" />
+      <button id="check">Find</button>
+      <button id="reset">Reset</button>
     </div>
 
     <div id="info" class="card hidden">
@@ -130,8 +130,8 @@
       <div class="row">
         <select id="quality" style="flex: 1"></select>
         <select id="kind">
-          <option value="video">Відео</option>
-          <option value="audio">Тільки аудіо (mp3)</option>
+          <option value="video">Video</option>
+          <option value="audio">Audio only (mp3)</option>
         </select>
       </div>
       <div class="row">
@@ -147,8 +147,8 @@
         ></button>
       </div>
       <div class="row">
-        <button id="go" class="primary" style="flex: 1">Завантажити</button>
-        <button id="stop" class="hidden">Скасувати</button>
+        <button id="go" class="primary" style="flex: 1">Download</button>
+        <button id="stop" class="hidden">Cancel</button>
       </div>
     </div>
 
@@ -157,7 +157,7 @@
       <div class="muted" id="ptext"></div>
     </div>
     <p id="msg" class="muted"></p>
-    <p class="muted"><a id="open">Відкрити папку</a> · <a id="upd">Оновити yt-dlp</a></p>
+    <p class="muted"><a id="open">Open folder</a> · <a id="upd">Update yt-dlp</a></p>
 
     <script src="renderer.js"></script>
   </body>

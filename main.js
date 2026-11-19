@@ -175,14 +175,14 @@ ipcMain.handle("download", (_e, { url, height, audioOnly, dir }) => {
             .map((s) => s.trim());
           win.webContents.send("progress", { pct: parseFloat(pct) || 0, speed, eta });
         } else if (line.includes("[Merger]") || line.includes("[ExtractAudio]")) {
-          win.webContents.send("progress", { pct: 100, speed: "", eta: "", status: "Обробка…" });
+          win.webContents.send("progress", { pct: 100, speed: "", eta: "", status: "Processing…" });
         }
       }
     });
     current.stderr.on("data", (d) => (err += d));
     current.on("close", (code) => {
       current = null;
-      code === 0 ? resolve(true) : reject(new Error(err.trim().split("\n").pop() || "Скасовано"));
+      code === 0 ? resolve(true) : reject(new Error(err.trim().split("\n").pop() || "Cancelled"));
     });
   });
 });
