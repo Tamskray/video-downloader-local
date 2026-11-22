@@ -5,6 +5,14 @@ const path = require("path");
 const https = require("https");
 
 const binDir = () => path.join(app.getPath("userData"), "bin");
+const configPath = () => path.join(__dirname, "config.json");
+
+function loadConfig() {
+  try { return JSON.parse(fs.readFileSync(configPath(), "utf8")); } catch { return {}; }
+}
+function saveConfig(data) {
+  fs.writeFileSync(configPath(), JSON.stringify(data, null, 2));
+}
 const ytName =
   process.platform === "win32"
     ? "yt-dlp.exe"
@@ -86,7 +94,17 @@ function runJson(args) {
 
 ipcMain.handle("init", async () => {
   await ensureYtdlp();
-  return { dir: app.getPath("downloads"), ffmpeg: ffmpegLocation() !== null };
+  const cfg = loadConfig();
+  const dir = cfg.downloadDir && fs.existsSync(cfg.downloadDir)
+    ? cfg.downloadDir
+    : app.getPath("downloads");
+  return { dir, ffmpeg: ffmpegLocation() !== null };
+});
+
+ipcMain.handle("setDir", (_e, dir) => {
+  const cfg = loadConfig();
+  cfg.downloadDir = dir;
+  saveConfig(cfg);
 });
 
 ipcMain.handle("info", async (_e, url) => {

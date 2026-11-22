@@ -1,4 +1,16 @@
 const $ = (id) => document.getElementById(id);
+
+const PRESET_HEIGHTS = [1080, 720, 480, 360, 240];
+
+const populateQuality = (heights) => {
+  const opts = ['<option value="best">Best</option>'];
+  const list = heights && heights.length ? heights : PRESET_HEIGHTS;
+  opts.push(...list.map((h) => `<option value="${h}">${h}p</option>`));
+  $("quality").innerHTML = opts.join("");
+};
+
+// Pre-populate with static presets before any video is found
+populateQuality(null);
 let dir = "";
 const isCancelMsg = (t) => /cancelled|canceled|terminated|killed/i.test(t);
 const msg = (t, err) => {
@@ -34,9 +46,7 @@ $("check").onclick = async () => {
     $("thumb").src = i.thumb || "";
     $("title").textContent = i.title;
     $("meta").textContent = [i.channel, i.duration].filter(Boolean).join(" · ");
-    $("quality").innerHTML =
-      '<option value="best">Best</option>' +
-      i.heights.map((h) => `<option value="${h}">${h}p</option>`).join("");
+    populateQuality(i.heights);
     show("info", true);
     show("opts", true);
     msg("");
@@ -51,7 +61,7 @@ $("kind").onchange = () => {
 };
 $("dirBtn").onclick = async () => {
   const d = await api.pickDir();
-  if (d) setDir(d);
+  if (d) { setDir(d); api.setDir(d); }
 };
 
 api.onProgress((p) => {
@@ -64,6 +74,7 @@ $("go").onclick = async () => {
   $("reset").disabled = true;
   show("stop", true);
   show("prog", true);
+  show("openAfterDownload", false);
   msg("");
   $("fill").style.width = "0";
   try {
@@ -74,6 +85,7 @@ $("go").onclick = async () => {
       audioOnly: $("kind").value === "audio",
     });
     msg("Done ✅");
+    show("openAfterDownload", true);
   } catch (e) {
     msg(e.message, true);
   }
@@ -85,6 +97,7 @@ $("go").onclick = async () => {
 
 $("stop").onclick = () => api.cancel();
 $("open").onclick = () => dir && api.openDir(dir);
+$("openAfterDownload").onclick = () => dir && api.openDir(dir);
 $("upd").onclick = async () => {
   msg("Updating…");
   msg(await api.update());
@@ -98,5 +111,7 @@ $("reset").onclick = () => {
   $("msg").textContent = "";
   $("msg").className = "muted";
   $("fill").style.width = "0";
+  populateQuality(null);
+  show("openAfterDownload", false);
   $("url").focus();
 };
