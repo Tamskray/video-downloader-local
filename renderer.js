@@ -11,6 +11,7 @@ const populateQuality = (heights) => {
 
 // Pre-populate with static presets before any video is found
 populateQuality(null);
+let currentHeights = [];
 let dir = "";
 const isCancelMsg = (t) => /cancelled|canceled|terminated|killed/i.test(t);
 const msg = (t, err) => {
@@ -43,6 +44,7 @@ $("check").onclick = async () => {
   $("check").disabled = true;
   try {
     const i = await api.info(url);
+    currentHeights = i.heights || [];
     $("thumb").src = i.thumb || "";
     $("title").textContent = i.title;
     $("meta").textContent = [i.channel, i.duration].filter(Boolean).join(" · ");
@@ -78,11 +80,28 @@ $("go").onclick = async () => {
   msg("");
   $("fill").style.width = "0";
   try {
+    let qualityTag = "";
+    if ($("kind").value !== "audio") {
+      const qVal = $("quality").value;
+      const h = qVal === "best" ? (currentHeights[0] || 1080) : parseInt(qVal, 10);
+      if (h >= 2160) {
+        qualityTag = "4k";
+      } else if (h === 1440) {
+        qualityTag = "2k";
+      } else if (h === 1080) {
+        qualityTag = "";
+      } else if (h) {
+        qualityTag = `${h}p`;
+      }
+    }
+
     await api.download({
       url: $("url").value.trim(),
       dir,
       height: $("quality").value,
       audioOnly: $("kind").value === "audio",
+      title: $("title").textContent.trim(),
+      qualityTag,
     });
     msg("Done ✅");
     show("openAfterDownload", true);
@@ -112,6 +131,7 @@ $("reset").onclick = () => {
   $("msg").className = "muted";
   $("fill").style.width = "0";
   populateQuality(null);
+  currentHeights = [];
   show("openAfterDownload", false);
   $("url").focus();
 };

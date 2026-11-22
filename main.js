@@ -68,7 +68,7 @@ function ffmpegLocation() {
   try {
     const p = require("ffmpeg-static").replace("app.asar", "app.asar.unpacked");
     if (p && fs.existsSync(p)) return p;
-  } catch (_) {}
+  } catch (_) { }
   // 2) запасний варіант: ffmpeg у системному PATH
   const r = spawnSync("ffmpeg", ["-version"]);
   return r.status === 0 ? "" : null; // '' = в PATH, null = немає
@@ -153,15 +153,65 @@ function killCurrent() {
 ipcMain.handle("cancel", killCurrent);
 app.on("before-quit", killCurrent);
 
-ipcMain.handle("download", (_e, { url, height, audioOnly, dir }) => {
+function getUniqueOutputTemplate(dir, title, qualityTag, ext) {
+  const extClean = ext.replace(/^\./, "").toLowerCase();
+  const qPart = qualityTag ? `.${qualityTag}` : "";
+
+  if (!title || !dir || !fs.existsSync(dir)) {
+    return `%(title)s${qPart}.%(ext)s`;
+  }
+
+  let files = [];
+  try {
+    files = fs.readdirSync(dir);
+  } catch {
+    return `%(title)s${qPart}.%(ext)s`;
+  }
+
+  const safeTitle = title.replace(/[\\/:*?"<>|]/g, "").trim();
+
+  const norm = (s) =>
+    s
+      .toLowerCase()
+      .replace(/[\\/:*?"<>|_\s]+/g, " ")
+      .replace(/\s*\(\s*(\d+)\s*\)/g, "($1)")
+      .trim();
+
+  const fileExists = (baseName) => {
+    const targetNorm = norm(baseName);
+    return files.some((f) => {
+      if (!f.toLowerCase().endsWith(`.${extClean}`)) return false;
+      const withoutExt = f.slice(0, -(extClean.length + 1));
+      return norm(withoutExt) === targetNorm;
+    });
+  };
+
+  const base0 = `${safeTitle}${qPart}`;
+  if (!fileExists(base0)) {
+    return `%(title)s${qPart}.%(ext)s`;
+  }
+
+  let counter = 1;
+  while (true) {
+    const candidate = `${safeTitle}(${counter})${qPart}`;
+    if (!fileExists(candidate)) {
+      return `%(title)s(${counter})${qPart}.%(ext)s`;
+    }
+    counter++;
+  }
+}
+
+ipcMain.handle("download", (_e, { url, height, audioOnly, dir, title, qualityTag }) => {
   return new Promise((resolve, reject) => {
+    const ext = audioOnly ? "mp3" : "mp4";
+    const outputTemplate = getUniqueOutputTemplate(dir, title, qualityTag, ext);
     const args = [
       "--no-playlist",
       "--newline",
       "-P",
       dir,
       "-o",
-      "%(title)s.%(ext)s",
+      outputTemplate,
       "--progress-template",
       "download:%(progress._percent_str)s|%(progress._speed_str)s|%(progress._eta_str)s",
     ];
